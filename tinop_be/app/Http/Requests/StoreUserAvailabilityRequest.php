@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreIdeaRequest extends FormRequest
+class StoreUserAvailabilityRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,16 +25,18 @@ class StoreIdeaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', 'integer', Rule::exists('users', 'id')],
-            'name' => ['required', 'string'],
-            'likes' => ['nullable', 'integer', 'min:0'],
-            'dislikes' => ['nullable', 'integer', 'min:0'],
-            'description' => ['nullable', 'string'],
+            'date' => [
+                'required',
+                'date',
+                Rule::unique('user_availabilities')->where(fn($query) => $query->where('user_id', auth()->id()))
+            ],
+            'status' => 'sometimes|in:office,remote,vacation,unavailable|default:office',
+            'notes' => 'nullable|string|max:200',
         ];
     }
 
     protected function prepareForValidation()
     {
-        $this->merge([]);
+        $this->mergeIfMissing(['status' => 'office']);
     }
 }

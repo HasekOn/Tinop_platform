@@ -10,9 +10,9 @@ use App\Http\Resources\IdeaCollection;
 use App\Http\Resources\IdeaResource;
 use App\Models\Idea;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class IdeaController extends Controller
 {
@@ -26,7 +26,7 @@ class IdeaController extends Controller
     {
         $filter = new IdeaFilter();
         $query = Idea::query()->with(['user', 'comments']);
-        $queryItems =  $filter->transform($request);
+        $queryItems = $filter->transform($request);
 
         if (count($queryItems) == 0) {
             return new IdeaCollection(Idea::paginate());

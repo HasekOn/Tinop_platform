@@ -17,6 +17,7 @@ class IdeaFactory extends Factory
      * @var string
      */
     protected $model = Idea::class;
+
     /**
      * Define the model's default state.
      *

@@ -35,7 +35,8 @@ class StoreTaskRequest extends FormRequest
         ];
     }
 
-    protected  function prepareForValidation() {
+    protected function prepareForValidation()
+    {
         $this->merge([]);
     }
 }

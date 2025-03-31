@@ -2,17 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\Task;
+use App\Models\UserAvailability;
 use Illuminate\Database\Seeder;
 
-class TaskSeeder extends Seeder
+class UserAvailabilitySeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Task::factory()
+        UserAvailability::factory()
             ->count(10)
             ->create();
     }

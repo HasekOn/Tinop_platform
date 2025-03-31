@@ -27,15 +27,15 @@ class UpdateTaskRequest extends FormRequest
         $method = $this->method();
 
         if ($method === 'PUT') {
-        return [
-            'user_id' => ['required', 'integer', Rule::exists('users', 'id')],
-            'name' => ['required', 'string'],
-            'status' => ['required', Rule::in(['TO PLAN', 'TO DO', 'IN PROGRESS', 'CANCELLED', 'DONE'])],
-            'effort' => ['nullable', Rule::in(['EASY', 'HARD', 'MEDIUM'])],
-            'priority' => ['nullable', Rule::in(['LOW', 'MEDIUM', 'HIGH'])],
-            'timeEst' => ['nullable', 'date'],
-            'description' => ['nullable', 'string'],
-        ];
+            return [
+                'user_id' => ['required', 'integer', Rule::exists('users', 'id')],
+                'name' => ['required', 'string'],
+                'status' => ['required', Rule::in(['TO PLAN', 'TO DO', 'IN PROGRESS', 'CANCELLED', 'DONE'])],
+                'effort' => ['nullable', Rule::in(['EASY', 'HARD', 'MEDIUM'])],
+                'priority' => ['nullable', Rule::in(['LOW', 'MEDIUM', 'HIGH'])],
+                'timeEst' => ['nullable', 'date'],
+                'description' => ['nullable', 'string'],
+            ];
         } else {
             return [
                 'user_id' => ['sometimes', 'required', 'integer', Rule::exists('users', 'id')],

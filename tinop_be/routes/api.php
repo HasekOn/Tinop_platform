@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\IdeaController;
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\UserAvailabilityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,3 +34,5 @@ Route::middleware('auth:sanctum')->group(function () {
  */
 Route::apiResource('tasks', TaskController::class)->middleware('auth:sanctum');
 Route::apiResource('ideas', IdeaController::class)->middleware('auth:sanctum');
+Route::apiResource('user_availabilities', UserAvailabilityController::class)
+    ->middleware('auth:sanctum');

@@ -18,8 +18,8 @@ Route::get('/setup', function () {
         $user = new \App\Models\User();
 
         $user->name = 'Admin';
-        $user->email  = $credentials['email'];
-        $user->password  = Hash::make($credentials['password']);
+        $user->email = $credentials['email'];
+        $user->password = Hash::make($credentials['password']);
 
         $user->save();
 
@@ -37,4 +37,5 @@ Route::get('/setup', function () {
             ];
         }
     }
-});
+}
+);

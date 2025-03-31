@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             TaskSeeder::class,
             IdeaSeeder::class,
+            UserAvailabilitySeeder::class,
         ]);
     }
 }

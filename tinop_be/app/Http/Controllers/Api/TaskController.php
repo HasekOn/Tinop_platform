@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Filters\TaskFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
-use App\Models\Task;
-use App\Http\Resources\TaskResource;
 use App\Http\Resources\TaskCollection;
-use App\Filters\TaskFilter;
+use App\Http\Resources\TaskResource;
+use App\Models\Task;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TaskController extends Controller
 {
@@ -26,7 +26,7 @@ class TaskController extends Controller
     {
         $filter = new TaskFilter();
         $query = Task::query()->with(['user', 'comments']);
-        $queryItems =  $filter->transform($request);
+        $queryItems = $filter->transform($request);
 
         if (count($queryItems) == 0) {
             return new TaskCollection(Task::paginate());
