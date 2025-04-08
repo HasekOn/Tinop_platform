@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\IdeaController;
 use App\Http\Controllers\Api\TaskController;
@@ -10,10 +11,15 @@ use Illuminate\Support\Facades\Route;
 API ROUTING
 */
 
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
 /*
  * Comment routes
  */
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+
     Route::prefix('tasks/{task}')->group(function () {
         Route::get('comments', [CommentController::class, 'indexForTask']);
         Route::post('comments', [CommentController::class, 'storeForTask']);
