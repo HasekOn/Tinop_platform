@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -63,5 +64,23 @@ class User extends Authenticatable
     public function getIsAdmin(): bool
     {
         return $this->is_admin;
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function projects(): BelongsToMany
+    {
+        return $this->belongsToMany(Project::class, 'project_user')
+            ->withPivot(['status', 'token', 'email'])
+            ->withTimestamps();
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function createdProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'creator_id');
     }
 }

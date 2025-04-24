@@ -44,8 +44,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('ideas', IdeaController::class);
     Route::apiResource('user_availabilities', UserAvailabilityController::class);
 
-    // Handling Projects
+    // Handling Projects and project - task
     Route::apiResource('projects', ProjectController::class);
     Route::post('/projects/{project}/tasks', [ProjectController::class, 'attachTask']);
     Route::delete('/projects/{project}/tasks/{task}', [ProjectController::class, 'detachTask']);
+
+    //Handling project - user
+    Route::post('/projects/{project}/invite', [ProjectController::class, 'inviteUser']);
+    Route::delete('/projects/{project}/users/{user}', [ProjectController::class, 'removeUser']);
 });
+
+//Routes without sanctum
+Route::post('/invitations/accept', [ProjectController::class, 'acceptInvitation']);

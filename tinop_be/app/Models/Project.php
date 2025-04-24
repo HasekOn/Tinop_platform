@@ -21,8 +21,18 @@ class Project extends Model
     /**
      * @return BelongsTo
      */
-    public function user(): BelongsTo
+    public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'creator_id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'project_user')
+            ->withPivot(['status', 'token', 'email'])
+            ->withTimestamps();
     }
 }

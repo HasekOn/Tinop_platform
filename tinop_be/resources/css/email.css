@@ -1,0 +1,21 @@
+/* Vlastní styly pro e-maily */
+.email-button {
+    background-color: #6366f1;
+    border-radius: 0.375rem;
+    color: white !important;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.email-project-name {
+    font-size: 1.25rem;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.email-footer {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+    margin-top: 2rem;
+}

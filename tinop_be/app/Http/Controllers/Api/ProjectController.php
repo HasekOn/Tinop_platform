@@ -8,12 +8,15 @@ use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectCollection;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
+use App\Models\ProjectUser;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
@@ -99,6 +102,73 @@ class ProjectController extends Controller
     {
         $this->authorize('update', $project);
         $project->tasks()->detach($task->id);
+        return response()->noContent();
+    }
+
+    /**
+     * @param Project $project
+     * @param Request $request
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function inviteUser(Project $project, Request $request): JsonResponse
+    {
+        $this->authorize('manage', $project);
+
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $token = Str::random(60);
+
+        $project->members()->attach(auth()->id(), [
+            'email' => $request->email,
+            'token' => $token,
+            'status' => 'pending'
+        ]);
+
+        // Odeslat e-mail s pozvánkou
+        // Mail::to($request->email)->send(new ProjectInvitationMail($project, $token));
+
+        return response()->json(['message' => 'Invitation sent']);
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function acceptInvitation(Request $request): JsonResponse
+    {
+        $request->validate(['token' => 'required']);
+
+        $invitation = ProjectUser::where('token', $request->token)->firstOrFail();
+
+        if (auth()->check()) {
+            if (auth()->user()->email !== $invitation->email) {
+                abort(403, 'This invitation does not match your account');
+            }
+
+            $invitation->update(['status' => 'accepted', 'user_id' => auth()->id()]);
+            return response()->json(['message' => 'Invitation accepted']);
+        }
+
+        return response()->json([
+            'action_required' => 'login_or_register',
+            'invitation_token' => $request->token
+        ], 401);
+    }
+
+    /**
+     * @param Project $project
+     * @param User $user
+     * @return Response
+     * @throws AuthorizationException
+     */
+    public function removeUser(Project $project, User $user): Response
+    {
+        $this->authorize('manage', $project);
+
+        $project->members()->detach($user->id);
         return response()->noContent();
     }
 }
