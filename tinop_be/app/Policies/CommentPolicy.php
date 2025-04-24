@@ -7,12 +7,22 @@ use App\Models\User;
 
 class CommentPolicy
 {
-    public function update(User $user, Comment $comment)
+    /**
+     * @param User $user
+     * @param Comment $comment
+     * @return bool
+     */
+    public function update(User $user, Comment $comment): bool
     {
         return $user->id === $comment->user_id || $user->getIsAdmin();
     }
 
-    public function delete(User $user, Comment $comment)
+    /**
+     * @param User $user
+     * @param Comment $comment
+     * @return bool
+     */
+    public function delete(User $user, Comment $comment): bool
     {
         return $user->id === $comment->user_id || $user->getIsAdmin();
     }
