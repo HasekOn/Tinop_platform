@@ -28,7 +28,7 @@ class ProjectController extends Controller
     public function index(): ProjectCollection
     {
         return new ProjectCollection(
-            Project::with(['user', 'tasks'])->paginate()
+            Project::with(['creator', 'tasks'])->paginate()
         );
     }
 
@@ -40,7 +40,7 @@ class ProjectController extends Controller
     public function show(Project $project): ProjectResource
     {
         $this->authorize('view', $project);
-        return new ProjectResource($project->load(['user', 'tasks']));
+        return new ProjectResource($project->load(['creator', 'tasks']));
     }
 
     /**
