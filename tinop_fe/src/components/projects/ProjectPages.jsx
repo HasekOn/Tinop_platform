@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from "../navigation/Sidebar.jsx";
 import Topbar from "../navigation/Topbar.jsx";
+import {getAuthToken} from "../../utils/tokenAuth.js";
 
 const ProjectList = () => {
     const [projects, setProjects] = useState([]);
@@ -10,10 +11,9 @@ const ProjectList = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const token = '1|2aL3epMnACdUnbk6sGvuo656qypEVseLyXHyFutxbdf299fa';
                 const response = await fetch('http://127.0.0.1:8000/api/projects', {
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': `Bearer ${getAuthToken()}`,
                         'Accept': 'application/json',
                     }
                 });

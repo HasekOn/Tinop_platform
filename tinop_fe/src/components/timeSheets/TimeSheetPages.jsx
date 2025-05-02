@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Sidebar from "../navigation/Sidebar.jsx";
 import Topbar from "../navigation/Topbar.jsx";
+import {getAuthToken} from "../../utils/tokenAuth.js";
 
 const getStatusClasses = (status) => {
     switch (status) {
@@ -25,10 +26,9 @@ const TimesheetList = () => {
     useEffect(() => {
         const fetchTimesheets = async () => {
             try {
-                const token = '1|2aL3epMnACdUnbk6sGvuo656qypEVseLyXHyFutxbdf299fa';
                 const response = await fetch('http://127.0.0.1:8000/api/user_availabilities', {
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': `Bearer ${getAuthToken()}`,
                         'Accept': 'application/json',
                     },
                 });

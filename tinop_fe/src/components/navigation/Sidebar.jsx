@@ -1,7 +1,17 @@
 import React from "react";
-import {NavLink} from "react-router-dom";
+import {NavLink, useNavigate} from "react-router-dom";
+import {clearAuthData} from "../../utils/tokenAuth.js";
 
 const Sidebar = () => {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        clearAuthData();
+        navigate('/login');
+
+        window.location.reload();
+    };
+
     const menuItems = [
         "Tasks",
         "Projects",
@@ -34,7 +44,10 @@ const Sidebar = () => {
                 </ul>
             </nav>
             <div className="mt-auto">
-                <button className="w-full py-2 bg-red-500 rounded hover:bg-red-600 transition">
+                <button
+                    onClick={handleLogout}
+                    className="w-full py-2 bg-red-500 rounded hover:bg-red-600 transition"
+                >
                     Logout
                 </button>
             </div>
