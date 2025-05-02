@@ -14,7 +14,7 @@ class UserAvailabilityResource extends JsonResource
                 'id' => $this->user->id,
                 'name' => $this->user->name
             ]),
-            'date' => $this->date->toDateString(),
+            'date' => $this->date,
             'status' => $this->status,
             'notes' => $this->notes
         ];
