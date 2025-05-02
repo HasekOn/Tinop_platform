@@ -8,6 +8,7 @@ import Register from "./components/register/Register.jsx";
 import Tasks from "./components/tasks/TaskPages.jsx";
 import Projects from "./components/projects/ProjectPages.jsx";
 import Ideas from "./components/ideas/IdeaPages.jsx";
+import Timesheet from "./components/timeSheets/TimeSheetPages.jsx";
 
 function AppRouter() {
     return (
@@ -18,6 +19,7 @@ function AppRouter() {
                 <Route path="/tasks" element={<Tasks/>}/>
                 <Route path="/projects" element={<Projects/>}/>
                 <Route path="/ideas" element={<Ideas/>}/>
+                <Route path="/timesheet" element={<Timesheet/>}/>
                 <Route path="/" element={
                     <App/>
                 }/>

@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Sidebar from "../navigation/Sidebar.jsx";
 import Topbar from "../navigation/Topbar.jsx";
+import {getAuthToken} from "../../utils/tokenAuth.js";
 
 const TaskList = () => {
     const [tasks, setTasks] = useState([]);
@@ -10,10 +11,9 @@ const TaskList = () => {
     useEffect(() => {
         const fetchTasks = async () => {
             try {
-                const token = '1|2aL3epMnACdUnbk6sGvuo656qypEVseLyXHyFutxbdf299fa';
                 const response = await fetch('http://127.0.0.1:8000/api/tasks', {
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': `Bearer ${getAuthToken()}`,
                         'Accept': 'application/json',
                     }
                 });

@@ -1,46 +1,134 @@
+import {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {setAuthData} from "../../utils/tokenAuth.js";
+
 function Login() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [errors, setErrors] = useState({});
+    const [generalError, setGeneralError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setErrors({});
+        setGeneralError('');
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    email,
+                    password
+                }),
+            });
+
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 422) {
+                    setErrors(responseData.errors || {});
+                } else {
+                    setGeneralError(responseData.message || 'Login failed');
+                }
+                return;
+            }
+
+            setAuthData(responseData.data);
+
+            navigate('/');
+        } catch (error) {
+            setGeneralError('Network error. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const getInputClass = (fieldName) =>
+        `w-full p-3 border text-gray-600 rounded focus:outline-none focus:ring-2 ${
+            errors[fieldName]
+                ? 'border-red-500 focus:ring-red-500'
+                : 'border-gray-500 focus:ring-blue-500'
+        }`;
 
     return (
         <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-white rounded-lg">
-            {/* Levá strana – Přihlašovací formulář */}
             <div className="relative flex flex-col justify-between p-8">
                 <div className="space-y-8">
-                    {/* Logo a nadpis */}
                     <div>
                         <h1 className="text-3xl font-bold text-black">Tinop</h1>
                         <p className="mt-1 text-black">Login to Ration platform</p>
                     </div>
-                    {/* Přihlašovací formulář */}
                     <div className="space-y-4">
                         <p className="text-lg font-semibold text-black">
                             Say goodbye to complexity. Say welcome to Tinop
                         </p>
-                        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                className="w-full p-3 border text-gray-600 border-gray-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                className="w-full p-3 border text-gray-600 border-gray-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
+
+                        {generalError && (
+                            <div className="p-3 bg-red-100 text-red-700 rounded">
+                                {generalError}
+                            </div>
+                        )}
+
+                        <form className="space-y-4" onSubmit={handleSubmit}>
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className={getInputClass('email')}
+                                />
+                                {errors.email && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.email[0]}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className={getInputClass('password')}
+                                />
+                                {errors.password && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.password[0]}</p>
+                                )}
+                            </div>
+
                             <div className="flex items-center">
-                                <input type="checkbox" id="remember" className="mr-2"/>
+                                <input
+                                    type="checkbox"
+                                    id="remember"
+                                    className="mr-2"
+                                    // Pro připomenutí uživatele by bylo potřeba implementovat logiku
+                                />
                                 <label htmlFor="remember" className="text-gray-600">
                                     Remember me
                                 </label>
                             </div>
-                            <button type="submit"
-                                    className="w-full py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
-                                Login
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isLoading ? 'Processing...' : 'Login'}
                             </button>
                         </form>
+
                         <div className="text-center text-gray-500">or</div>
+
                         <button
-                            className="w-full py-3 border border-gray-300 rounded flex items-center justify-center space-x-2 hover:bg-gray-100 transition">
-                            {/* Google ikona – pokud máte vlastní, můžete zde nahradit SVG nebo obrázek */}
+                            className="w-full py-3 border border-gray-300 rounded flex items-center justify-center space-x-2 hover:bg-gray-100 transition"
+                        >
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 48 48">
                                 <path fill="#fbc02d"
                                       d="M43.611 20.083H42V20H24v8h11.303C34.732 32.488 30.49 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.148 0 6.088 1.193 8.354 3.146l5.657-5.657C34.353 7.85 29.45 6 24 6 12.954 6 4 14.954 4 26s8.954 20 20 20 20-8.954 20-20c0-1.341-.138-2.646-.389-3.917z"/>
@@ -51,20 +139,18 @@ function Login() {
                                 <path fill="#1565c0"
                                       d="M43.611 20.083H42V20H24v8h11.303c-1.197 3.217-3.664 5.828-6.303 7.034V38h10.005C39.291 34.691 42 29.788 42 24c0-.7-.063-1.35-.389-3.917z"/>
                             </svg>
-                            <span>Signup with Google</span>
+                            <span>Sign in with Google</span>
                         </button>
                     </div>
                 </div>
-                {/* Odkaz na registraci */}
                 <div className="mt-4 text-center">
                     <p className="text-gray-600">
-                        Don't have an account? <a href="/register" className="text-blue-500 hover:underline">Register</a>
+                        Don't have an account? <a href="/register"
+                                                  className="text-blue-500 hover:underline">Register</a>
                     </p>
                 </div>
-                {/* Dolní levá část – Join with 20k+ Users */}
             </div>
 
-            {/* Pravá strana – Promo sekce */}
             <div className="relative hidden md:block">
                 <img
                     src="../../../public/welcome.png"
@@ -84,4 +170,4 @@ function Login() {
     );
 }
 
-export default Login
+export default Login;

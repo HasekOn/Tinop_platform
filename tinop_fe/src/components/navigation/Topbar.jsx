@@ -6,10 +6,9 @@ const Topbar = () => {
             <input
                 type="text"
                 placeholder="Search for a task"
-                className="border p-2 rounded w-full max-w-xs"
+                className="border p-2 rounded w-full max-w-xs text-black"
             />
             <div className="ml-4">
-                {/* Nahraďte src vlastním odkazem na profilový obrázek */}
                 <img
                     src="/path-to-profile-picture.jpg" //user profile image XX jinak inicialy
                     alt="Profile"

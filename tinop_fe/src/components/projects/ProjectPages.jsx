@@ -23,7 +23,6 @@ const ProjectList = () => {
                 }
 
                 const data = await response.json();
-                console.log("Fetched projects:", data);
 
                 // Ujistíme se, že pracujeme s polem
                 const projectsArray = Array.isArray(data)

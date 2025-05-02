@@ -23,7 +23,6 @@ const IdeaList = () => {
                 }
 
                 const data = await response.json();
-                console.log("Fetched ideas:", data);
 
                 // Nastavíme data přímo – očekáváme, že struktura obsahuje { data, meta }
                 setIdeas(data);
