@@ -25,11 +25,21 @@ class ProjectController extends Controller
     /**
      * @return ProjectCollection
      */
-    public function index(): ProjectCollection
+    public function index()
     {
-        return new ProjectCollection(
-            Project::with(['creator', 'tasks'])->paginate()
-        );
+        $userId = auth()->id();
+
+        $projects = Project::with(['creator', 'tasks'])
+            ->where(function ($query) use ($userId) {
+                $query->where('creator_id', $userId)
+                    ->orWhereHas('members', function ($q) use ($userId) {
+                        $q->where('user_id', $userId)
+                            ->where('status', 'accepted');
+                    });
+            })
+            ->paginate();
+
+        return new ProjectCollection($projects);
     }
 
     /**

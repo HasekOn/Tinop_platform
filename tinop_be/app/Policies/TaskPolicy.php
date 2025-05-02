@@ -26,4 +26,14 @@ class TaskPolicy
     {
         return $user->id === $task->user_id || $user->getIsAdmin();
     }
+
+    /**
+     * @param User $user
+     * @param Task $task
+     * @return bool
+     */
+    public function view(User $user, Task $task): bool
+    {
+        return $user->id === $task->user_id;
+    }
 }

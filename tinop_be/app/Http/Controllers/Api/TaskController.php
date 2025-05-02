@@ -25,22 +25,25 @@ class TaskController extends Controller
     public function index(Request $request): TaskCollection
     {
         $filter = new TaskFilter();
-        $query = Task::query()->with(['user', 'comments']);
+        $query = Task::query()
+            ->with(['user', 'comments'])
+            ->where('user_id', auth()->id());
+
         $queryItems = $filter->transform($request);
 
-        if (count($queryItems) == 0) {
-            return new TaskCollection(Task::paginate());
-        } else {
-            return new TaskCollection($query->where($queryItems)->paginate());
-        }
+        return new TaskCollection(
+            $query->where($queryItems)->paginate()
+        );
     }
 
     /**
      * @param Task $task
      * @return TaskResource
+     * @throws AuthorizationException
      */
     public function show(Task $task): TaskResource
     {
+        $this->authorize('view', $task);
         return new TaskResource($task->load(['user', 'comments']));
     }
 
