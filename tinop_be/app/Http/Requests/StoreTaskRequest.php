@@ -30,7 +30,7 @@ class StoreTaskRequest extends FormRequest
             'status' => ['required', Rule::in(['TO PLAN', 'TO DO', 'IN PROGRESS', 'CANCELLED', 'DONE'])],
             'effort' => ['nullable', Rule::in(['EASY', 'HARD', 'MEDIUM'])],
             'priority' => ['nullable', Rule::in(['LOW', 'MEDIUM', 'HIGH'])],
-            'timeEst' => ['nullable', 'date'],
+            'timeEst' => ['nullable', 'date', 'after_or_equal:today'],
             'description' => ['nullable', 'string'],
         ];
     }

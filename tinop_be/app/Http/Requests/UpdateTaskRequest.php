@@ -33,7 +33,7 @@ class UpdateTaskRequest extends FormRequest
                 'status' => ['required', Rule::in(['TO PLAN', 'TO DO', 'IN PROGRESS', 'CANCELLED', 'DONE'])],
                 'effort' => ['nullable', Rule::in(['EASY', 'HARD', 'MEDIUM'])],
                 'priority' => ['nullable', Rule::in(['LOW', 'MEDIUM', 'HIGH'])],
-                'timeEst' => ['nullable', 'date'],
+                'timeEst' => ['nullable', 'date', 'after_or_equal:today'],
                 'description' => ['nullable', 'string'],
             ];
         } else {
@@ -43,7 +43,7 @@ class UpdateTaskRequest extends FormRequest
                 'status' => ['sometimes', 'required', Rule::in(['TO PLAN', 'TO DO', 'IN PROGRESS', 'CANCELLED', 'DONE'])],
                 'effort' => ['sometimes', 'nullable', Rule::in(['EASY', 'HARD', 'MEDIUM'])],
                 'priority' => ['sometimes', 'nullable', Rule::in(['LOW', 'MEDIUM', 'HIGH'])],
-                'timeEst' => ['sometimes', 'nullable', 'date'],
+                'timeEst' => ['sometimes', 'nullable', 'date', 'after_or_equal:today'],
                 'description' => ['sometimes', 'nullable', 'string'],
             ];
         }
