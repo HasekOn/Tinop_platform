@@ -15,8 +15,8 @@ const Tasks = () => {
     const [modal, setModal] = useState({open: false, task: null});
     const [selectedTaskDetail, setSelectedTaskDetail] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [sortValue, setSortValue] = useState("timeAsc");    // výchozí řazení
-    const [filterValue, setFilterValue] = useState("all");      // výchozí filtr
+    const [sortValue, setSortValue] = useState("timeAsc");
+    const [filterValue, setFilterValue] = useState("all");
 
     const sortOptions = [
         {value: "timeAsc", label: "Time Estimate Ascending"},

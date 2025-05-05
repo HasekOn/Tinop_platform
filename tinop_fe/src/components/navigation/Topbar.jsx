@@ -2,21 +2,7 @@ import React, {useState} from "react";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faCaretDown, faMagnifyingGlass} from '@fortawesome/free-solid-svg-icons';
 import {getCurrentUser} from "../../utils/tokenAuth.js";
-
-const InitialsAvatar = ({name}) => {
-    const initials = name
-        ?.split(' ')
-        .map(n => n[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase();
-
-    return (
-        <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
-            {initials || "?"}
-        </div>
-    );
-};
+import {InitialsAvatar} from "../../utils/InitialsAvatar.jsx";
 
 const Topbar = ({
                     currentPage,
