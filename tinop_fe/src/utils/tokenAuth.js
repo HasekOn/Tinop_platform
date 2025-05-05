@@ -1,9 +1,3 @@
-import {ToastContainer} from "react-toastify";
-import Sidebar from "../components/navigation/Sidebar.jsx";
-import Topbar from "../components/navigation/Topbar.jsx";
-import TaskModal from "../components/tasks/TaskModal.jsx";
-import React from "react";
-
 export const setAuthData = (data) => {
     localStorage.setItem('access_token', data.access_token);
     localStorage.setItem('user', JSON.stringify(data.user));
@@ -28,7 +22,7 @@ export const isAuthenticated = () => {
 };
 
 export const authHeaders = () => ({
-    'Authorization': `Bearer ${getAuthToken()}`,
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
+    Authorization: `Bearer ${getAuthToken()}`,
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
 });

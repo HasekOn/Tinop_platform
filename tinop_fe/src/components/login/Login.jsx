@@ -23,10 +23,7 @@ function Login() {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                 },
-                body: JSON.stringify({
-                    email,
-                    password
-                }),
+                body: JSON.stringify({email, password}),
             });
 
             const responseData = await response.json();
@@ -37,15 +34,15 @@ function Login() {
                 } else {
                     setGeneralError(responseData.message || 'Login failed');
                 }
+                setIsLoading(false);
                 return;
             }
 
             setAuthData(responseData.data);
 
-            navigate('/');
+            window.location.href = '/tasks';
         } catch (error) {
             setGeneralError('Network error. Please try again.');
-        } finally {
             setIsLoading(false);
         }
     };
@@ -108,7 +105,6 @@ function Login() {
                                     type="checkbox"
                                     id="remember"
                                     className="mr-2"
-                                    // Pro připomenutí uživatele by bylo potřeba implementovat logiku
                                 />
                                 <label htmlFor="remember" className="text-gray-600">
                                     Remember me

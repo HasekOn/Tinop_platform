@@ -88,7 +88,7 @@ const TaskModal = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 backdrop-blur-lg bg-black bg-opacity-30 flex items-center justify-center p-4">
+        <div className="fixed inset-0  backdrop-brightness-50 backdrop-blur-lg flex items-center justify-center p-4">
             <div className="bg-white rounded-lg p-6 w-full max-w-md relative shadow-xl min-h-[70vh] flex flex-col">
                 <h2 className="text-2xl font-bold mb-6 text-gray-800">
                     {task && task.id ? 'Edit Task' : 'Create New Task'}

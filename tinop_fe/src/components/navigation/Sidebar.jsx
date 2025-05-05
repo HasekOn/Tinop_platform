@@ -21,7 +21,7 @@ const Sidebar = () => {
 
     return (
         <div className="bg-gray-800 text-white w-64 min-h-screen flex flex-col p-6">
-            <h1 className="text-2xl font-bold mb-8">TinopPlatform</h1>
+            <a className="text-2xl font-bold mb-8" href={'/tasks'}>TinopPlatform</a>
             <nav>
                 <ul>
                     {menuItems.map((item, index) => {
