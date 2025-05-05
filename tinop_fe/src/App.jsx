@@ -1,9 +1,13 @@
 import './App.css'
+import {Toaster} from 'react-hot-toast';
 
 function App() {
 
     return (
-        <a href="/tasks">Come in</a>
+        <>
+            <Toaster position="top-right"/>
+            <a href="/tasks">Come in</a>
+        </>
     )
 }
 

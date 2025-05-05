@@ -1,81 +1,84 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
+import TaskModal from './TaskModal.jsx';
+import TaskPreview from './TaskPreview.jsx';
+import {toast, ToastContainer} from 'react-toastify';
+import {getAuthToken} from '../../utils/tokenAuth.js';
+import {deleteById} from "../../utils/crudHelper.js";
 import Sidebar from "../navigation/Sidebar.jsx";
 import Topbar from "../navigation/Topbar.jsx";
-import {getAuthToken} from "../../utils/tokenAuth.js";
 
-const TaskList = () => {
+const Tasks = () => {
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [modal, setModal] = useState({open: false, task: null});
 
-    useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/api/tasks', {
-                    headers: {
-                        'Authorization': `Bearer ${getAuthToken()}`,
-                        'Accept': 'application/json',
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Unauthorized. Please login to continue.');
-                }
-
-                const data = await response.json();
-
-                const tasksArray = Array.isArray(data)
-                    ? data
-                    : Array.isArray(data.data)
-                        ? data.data
-                        : [];
-                setTasks(tasksArray);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTasks();
+    const fetchTasks = useCallback(async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('http://127.0.0.1:8000/api/tasks', {
+                headers: {'Authorization': `Bearer ${getAuthToken()}`}
+            });
+            if (!res.ok) throw new Error('Fetch failed');
+            const data = await res.json();
+            setTasks(Array.isArray(data) ? data : data.data || []);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    if (loading) return <div className="p-4 text-black">Loading...</div>;
-    if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
+    useEffect(() => {
+        fetchTasks();
+    }, [fetchTasks]);
 
-    return (
-        <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.isArray(tasks) && tasks.length > 0 ? (
-                tasks.map((task, index) => (
-                    <div
-                        key={index}
-                        className="bg-white shadow rounded p-4 flex flex-col justify-between"
-                    >
-                        <h2 className="font-bold mb-2 text-black">{task.name || 'Task Title'}</h2>
-                        <p className="text-sm text-black">
-                            {task.status || 'Task description here...'}
-                        </p>
-                    </div>
-                ))
-            ) : (
-                <div className="p-4 text-gray-600">No tasks available</div>
-            )}
-        </div>
-    );
-};
+    const handleDelete = async id => {
+        try {
+            await deleteById('tasks', id);
+            toast.success('Task was deleted 🚀');
+            fetchTasks();
+        } catch (e) {
+            toast.error(`Failed to delete: ${e.message}`);
+        }
+    };
 
-const Tasks = () => {
+
     return (
         <div className="w-screen h-screen flex">
+            <ToastContainer position="bottom-right" autoClose={1500}/>
             <Sidebar/>
             <div className="flex-1 flex flex-col">
-                <Topbar/>
-                <main className="flex-1 overflow-y-auto bg-gray-100">
-                    <TaskList/>
-                </main>
+                <Topbar currentPage={'tasks'} onCreate={() => setModal({open: true, task: null})}/>
+
+                <div className="p-4 grid grid-cols-3 gap-4">
+                    {loading && <p>Loading…</p>}
+                    {!loading && tasks.map(t => (
+                        <div key={t.id} className="bg-gray-200 p-4 rounded">
+                            <TaskPreview
+                                name={t.name}
+                                status={t.status}
+                                timeEst={t.timeEst}
+                                onEdit={() => setModal({open: true, task: t})}
+                                onDelete={() => handleDelete(t.id)}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                <TaskModal
+                    isOpen={modal.open}
+                    task={modal.task}
+                    onClose={() => setModal({open: false, task: null})}
+                    onTaskSaved={() => {
+                        setModal({open: false, task: null});
+                        fetchTasks();
+                    }}
+                />
             </div>
         </div>
     );
+
 };
 
 export default Tasks;
