@@ -104,18 +104,37 @@ class IdeaController extends Controller
             'reaction' => ['required', Rule::in(['like', 'dislike'])],
         ]);
 
-        $idea->reactors()->syncWithoutDetaching([
-            auth()->id() => ['reaction' => $data['reaction']],
-        ]);
+        $userId = auth()->id();
+        $newReaction = $data['reaction'];
 
-        $counts = [
-            'likes' => $idea->reactors()->wherePivot('reaction', 'like')->count(),
-            'dislikes' => $idea->reactors()->wherePivot('reaction', 'dislike')->count(),
-        ];
+        $previous = $idea->reactors()
+            ->where('user_id', $userId)
+            ->first()?->pivot->reaction;
+
+        if ($previous !== $newReaction) {
+            if ($previous === 'like') {
+                $idea->decrement('likes');
+            } elseif ($previous === 'dislike') {
+                $idea->decrement('dislikes');
+            }
+
+            if ($newReaction === 'like') {
+                $idea->increment('likes');
+            } else { // 'dislike'
+                $idea->increment('dislikes');
+            }
+        }
+
+        $idea->reactors()->syncWithoutDetaching([
+            $userId => ['reaction' => $newReaction],
+        ]);
 
         return response()->json([
             'status' => 'success',
-            'data' => $counts,
+            'data' => [
+                'likes' => $idea->likes,
+                'dislikes' => $idea->dislikes,
+            ],
         ], 200);
     }
 }
