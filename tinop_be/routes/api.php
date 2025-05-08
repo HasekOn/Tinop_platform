@@ -57,6 +57,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //get all user availabilities
     Route::get('/allAvailability', [UserAvailabilityController::class, 'allUsersAvailability']);
+
+    //idea react route
+    Route::post('ideas/{idea}/react', [IdeaController::class, 'react']);
 });
 
 //Routes without sanctum

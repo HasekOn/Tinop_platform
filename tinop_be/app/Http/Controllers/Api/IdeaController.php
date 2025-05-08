@@ -11,8 +11,10 @@ use App\Http\Resources\IdeaResource;
 use App\Models\Idea;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
 
 class IdeaController extends Controller
 {
@@ -83,5 +85,34 @@ class IdeaController extends Controller
 
         $idea->delete();
         return response()->noContent();
+    }
+
+    /**
+     * @param Request $request
+     * @param Idea $idea
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function react(Request $request, Idea $idea): JsonResponse
+    {
+        $this->authorize('view', $idea);
+
+        $data = $request->validate([
+            'reaction' => ['required', Rule::in(['like', 'dislike'])],
+        ]);
+
+        $idea->reactors()->syncWithoutDetaching([
+            auth()->id() => ['reaction' => $data['reaction']],
+        ]);
+
+        $counts = [
+            'likes' => $idea->reactors()->wherePivot('reaction', 'like')->count(),
+            'dislikes' => $idea->reactors()->wherePivot('reaction', 'dislike')->count(),
+        ];
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $counts,
+        ], 200);
     }
 }

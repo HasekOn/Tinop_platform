@@ -83,4 +83,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Project::class, 'creator_id');
     }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function reactedIdeas(): BelongsToMany
+    {
+        return $this->belongsToMany(Idea::class)
+            ->withPivot('reaction')
+            ->withTimestamps();
+    }
 }
