@@ -7,6 +7,7 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectCollection;
 use App\Http\Resources\ProjectResource;
+use App\Mail\ProjectInvitationMail;
 use App\Models\Project;
 use App\Models\ProjectUser;
 use App\Models\Task;
@@ -16,6 +17,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class ProjectController extends Controller
@@ -59,7 +61,7 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request): ProjectResource
     {
-        $project = Project::create($request->validated() + ['user_id' => auth()->id()]);
+        $project = Project::create($request->validated() + ['creator_id' => auth()->id()]);
         return new ProjectResource($project);
     }
 
@@ -126,22 +128,43 @@ class ProjectController extends Controller
         $this->authorize('manage', $project);
 
         $request->validate([
-            'email' => 'required|email'
+            'emails' => ['required', 'array', 'min:1'],
+            'emails.*' => ['required', 'email'],
         ]);
 
-        $token = Str::random(60);
+        $invited = [];
+        $notFound = [];
 
-        $project->members()->attach(auth()->id(), [
-            'email' => $request->email,
-            'token' => $token,
-            'status' => 'pending'
-        ]);
+        foreach ($request->input('emails') as $email) {
+            $user = User::where('email', $email)->first();
 
-        // Odeslat e-mail s pozvánkou
-        // Mail::to($request->email)->send(new ProjectInvitationMail($project, $token));
+            if (!$user) {
+                $notFound[] = $email;
+                continue;
+            }
 
-        return response()->json(['message' => 'Invitation sent']);
+            $token = Str::random(60);
+
+            $project->members()->attach($user->id, [
+                'email' => $email,
+                'token' => $token,
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            Mail::to($email)->send(new ProjectInvitationMail($project, $token));
+
+            $invited[] = $email;
+        }
+
+        return response()->json([
+            'message' => 'Invitations processed',
+            'invited' => $invited,
+            'not_found' => $notFound,
+        ], 201);
     }
+
 
     /**
      * @param Request $request
@@ -180,5 +203,54 @@ class ProjectController extends Controller
 
         $project->members()->detach($user->id);
         return response()->noContent();
+    }
+
+    /**
+     * @param Project $project
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function allUsers(Project $project): JsonResponse
+    {
+        $this->authorize('manage', $project);
+
+        $members = $project->members()
+            ->where('status', 'accepted')
+            ->select('users.id', 'users.name', 'users.email', 'users.is_admin')
+            ->get();
+
+        return response()->json([
+            'data' => $members
+        ], 200);
+    }
+
+    /**
+     * @param Project $project
+     * @return JsonResponse
+     * @throws AuthorizationException
+     */
+    public function noUsersInProject(Project $project): JsonResponse
+    {
+        $this->authorize('manage', $project);
+
+        $memberIds = $project->members()
+            ->pluck('users.id')
+            ->toArray();
+
+        $excludedIds = array_merge($memberIds, [
+            $project->creator_id,
+        ]);
+
+        $emailsNotInProject = User::query()
+            ->whereNotIn('id', $excludedIds)
+            ->pluck('email')
+            ->all();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'emails' => $emailsNotInProject,
+            ],
+        ], 200);
     }
 }

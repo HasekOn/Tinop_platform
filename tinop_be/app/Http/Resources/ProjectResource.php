@@ -14,14 +14,20 @@ class ProjectResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        /** @var \App\Models\User|null $me */
+        $me = $request->user();
+
+        $isOwner = $me && $me->id === $this->creator_id;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             'creator_id' => new UserResource($this->whenLoaded('user')),
+            'effort' => $this->effort,
+            'timeEst' => $this->timeEst,
+            'is_owner' => $isOwner,
             'tasks' => TaskResource::collection($this->whenLoaded('tasks')),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
         ];
     }
 }

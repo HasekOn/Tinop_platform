@@ -52,8 +52,10 @@ Route::middleware('auth:sanctum')->group(function () {
     //Handling project - user
     Route::post('/projects/{project}/invite', [ProjectController::class, 'inviteUser']);
     Route::delete('/projects/{project}/users/{user}', [ProjectController::class, 'removeUser']);
+    Route::get('/projects/{project}/allUsers', [ProjectController::class, 'allUsers']);
+    Route::get('/projects/{project}/noUsersInProject', [ProjectController::class, 'noUsersInProject']);
 
-    //get all users
+    //get all user availabilities
     Route::get('/allAvailability', [UserAvailabilityController::class, 'allUsersAvailability']);
 });
 
