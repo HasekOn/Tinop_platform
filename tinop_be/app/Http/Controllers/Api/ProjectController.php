@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectCollection;
 use App\Http\Resources\ProjectResource;
@@ -92,16 +93,25 @@ class ProjectController extends Controller
 
     /**
      * @param Project $project
-     * @param Request $request
+     * @param StoreTaskRequest $taskRequest
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function attachTask(Project $project, Request $request): JsonResponse
+    public function attachTask(Project $project, StoreTaskRequest $taskRequest): JsonResponse
     {
         $this->authorize('update', $project);
-        $request->validate(['task_id' => 'required|exists:tasks,id']);
-        $project->tasks()->attach($request->task_id);
-        return response()->json(['message' => 'Task attached']);
+
+        $task = Task::create(
+            $taskRequest->validated() + ['user_id' => auth()->id()]
+        );
+
+        $project->tasks()->attach($task->id);
+
+        return response()->json([
+            'message' => 'Task created and attached',
+            'task' => $task,
+            'project' => $project
+        ]);
     }
 
     /**
