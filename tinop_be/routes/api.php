@@ -52,6 +52,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //Handling project - user
     Route::post('/projects/{project}/invite', [ProjectController::class, 'inviteUser']);
     Route::delete('/projects/{project}/users/{user}', [ProjectController::class, 'removeUser']);
+
+    //get all users
+    Route::get('/allAvailability', [UserAvailabilityController::class, 'allUsersAvailability']);
 });
 
 //Routes without sanctum

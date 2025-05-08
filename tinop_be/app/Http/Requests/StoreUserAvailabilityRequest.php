@@ -13,7 +13,6 @@ class StoreUserAvailabilityRequest extends FormRequest
     public function authorize(): bool
     {
         $user = $this->user();
-
         return $user !== null && $user->tokenCan('create');
     }
 
@@ -28,15 +27,21 @@ class StoreUserAvailabilityRequest extends FormRequest
             'date' => [
                 'required',
                 'date',
-                Rule::unique('user_availabilities')->where(fn($query) => $query->where('user_id', auth()->id()))
+                Rule::unique('user_availabilities')
+                    ->where(fn($query) => $query->where('user_id', $this->user()->id))
             ],
-            'status' => 'sometimes|in:office,remote,vacation,unavailable|default:office',
+            'status' => 'sometimes|in:office,remote,vacation,unavailable',
             'notes' => 'nullable|string|max:200',
         ];
     }
 
-    protected function prepareForValidation()
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
     {
-        $this->mergeIfMissing(['status' => 'office']);
+        $this->mergeIfMissing([
+            'status' => 'office',
+        ]);
     }
 }
