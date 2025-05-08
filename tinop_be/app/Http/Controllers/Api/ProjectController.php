@@ -106,6 +106,20 @@ class ProjectController extends Controller
 
     /**
      * @param Project $project
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function tasks(Project $project, Request $request): JsonResponse
+    {
+        $tasks = $project->tasks()->get();
+
+        return response()->json([
+            'data' => $tasks
+        ]);
+    }
+
+    /**
+     * @param Project $project
      * @param Task $task
      * @return Response
      * @throws AuthorizationException

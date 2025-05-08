@@ -46,8 +46,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Handling Projects and project - task
     Route::apiResource('projects', ProjectController::class);
-    Route::post('/projects/{project}/tasks', [ProjectController::class, 'attachTask']);
-    Route::delete('/projects/{project}/tasks/{task}', [ProjectController::class, 'detachTask']);
+    Route::get('/projects/{project}/tasks', [ProjectController::class, 'tasks']);
+    Route::post('/projects/{project}/attachTask', [ProjectController::class, 'attachTask']);
+    Route::delete('/projects/{project}/detachTask/{task}', [ProjectController::class, 'detachTask']);
 
     //Handling project - user
     Route::post('/projects/{project}/invite', [ProjectController::class, 'inviteUser']);
