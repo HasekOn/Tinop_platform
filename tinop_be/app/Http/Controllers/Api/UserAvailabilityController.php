@@ -108,6 +108,7 @@ class UserAvailabilityController extends Controller
 
                 $result = $users->map(function (User $user) use ($start, $end, $all) {
                     $days = [];
+
                     for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
                         $dateStr = $date->toDateString();
                         $availForUser = $all->get($user->id, collect())
@@ -115,8 +116,10 @@ class UserAvailabilityController extends Controller
 
                         $days[] = [
                             'date' => $dateStr,
+                            'id' => $availForUser->id ?? null,
                             'availability' => $availForUser->status ?? 'office',
                             'description' => $availForUser->notes ?? '',
+                            'isEditable' => $availForUser !== null,
                         ];
                     }
 
@@ -137,8 +140,10 @@ class UserAvailabilityController extends Controller
                     return [
                         'id' => $user->id,
                         'name' => $user->name,
+                        'availability_id' => $avail->id ?? null,
                         'availability' => $avail->status ?? 'office',
                         'description' => $avail->notes ?? '',
+                        'isEditable' => $avail !== null,
                     ];
                 });
             }

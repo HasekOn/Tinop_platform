@@ -9,21 +9,27 @@ class UpdateUserAvailabilityRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $user = $this->user();
+
+        return $user !== null && $user->tokenCan('update');
     }
 
     public function rules(): array
     {
+        $method = $this->method();
+
+        if ($method === 'PUT') {
+            return [
+                'date' => ['required', 'date'],
+                'status' => ['required', Rule::in(['office', 'remote', 'vacation', 'unavailable'])],
+                'notes' => ['nullable', 'string', 'max:200'],
+            ];
+        }
+
         return [
-            'date' => [
-                'sometimes',
-                'date',
-                Rule::unique('user_availabilities')
-                    ->ignore($this->route('user_availability'))
-                    ->where(fn ($query) => $query->where('user_id', auth()->id()))
-            ],
-            'status' => 'sometimes|in:office,remote,vacation,unavailable',
-            'notes' => 'nullable|string|max:200',
+            'date' => ['sometimes', 'nullable', 'date'],
+            'status' => ['sometimes', 'nullable', Rule::in(['office', 'remote', 'vacation', 'unavailable'])],
+            'notes' => ['sometimes', 'nullable', 'string', 'max:200'],
         ];
     }
 }
