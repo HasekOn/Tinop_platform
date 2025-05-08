@@ -10,6 +10,7 @@ import Ideas from "./components/ideas/IdeaPages.jsx";
 import Timesheet from "./components/timeSheets/TimeSheetPages.jsx";
 import {isAuthenticated} from "./utils/tokenAuth.js";
 import ProfilePages from "./components/profile/ProfilePages.jsx";
+import ProjectWhole from "./components/projects/ProjectWhole.jsx";
 
 const ProtectedRoute = ({redirectPath = '/login'}) => {
     if (!isAuthenticated()) {
@@ -28,6 +29,7 @@ function AppRouter() {
                 <Route element={<ProtectedRoute redirectPath="/login"/>}>
                     <Route path="/tasks" element={<Tasks/>}/>
                     <Route path="/projects" element={<Projects/>}/>
+                    <Route path="/projects/:id" element={<ProjectWhole/>}/>
                     <Route path="/ideas" element={<Ideas/>}/>
                     <Route path="/timesheet" element={<Timesheet/>}/>
                     <Route path="/profile" element={<ProfilePages/>}/>

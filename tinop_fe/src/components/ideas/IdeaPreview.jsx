@@ -65,7 +65,7 @@ const IdeaPreview = ({id, name, description, likes, dislikes, reaction, onEdit, 
         <>
             <div
                 onClick={onShow}
-                className="idea-preview bg-white shadow rounded p-4 cursor-pointer hover:shadow-lg transition-shadow w-full max-w-md h-40 mx-auto"
+                className="idea-preview bg-white shadow rounded p-4 cursor-pointer hover:ring-1 hover:ring-blue-500 transition-shadow w-full max-w-md h-40 mx-auto"
             >
                 <div className="flex justify-between items-center">
                     <h3 className="text-xl font-bold text-gray-800 max-w-xs truncate">{name}</h3>

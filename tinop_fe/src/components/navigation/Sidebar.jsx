@@ -15,7 +15,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
     return (
         <div className={`bg-gray-800 text-white w-64 h-full p-6 pt-20 fixed top-0 left-0 z-30 transition-transform transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-            <a className="text-2xl font-bold mb-8 block" href={'/tasks'}>TinopPlatform</a>
+            <a className="text-2xl font-bold mb-8 block" href={'/tasks'}>Tino Platform</a>
             <nav>
                 <ul>
                     {menuItems.map((item, index) => {

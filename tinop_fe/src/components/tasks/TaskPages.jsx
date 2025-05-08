@@ -140,6 +140,7 @@ const Tasks = () => {
                         setModal({open: false, task: null});
                         fetchTasks();
                     }}
+                    url={'http://127.0.0.1:8000/api/tasks'}
                 />
 
                 {selectedTaskDetail && (

@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { getAuthToken, getCurrentUser } from "../../utils/tokenAuth.js";
-import { toast } from 'react-toastify';
-import { updateById } from '../../utils/crudHelper.js';
+import React, {useEffect, useState} from 'react';
+import {getAuthToken, getCurrentUser} from "../../utils/tokenAuth.js";
+import {toast} from 'react-toastify';
+import {updateById} from '../../utils/crudHelper.js';
 
 const TaskModal = ({
                        isOpen,
                        onClose,
                        onTaskSaved,
-                       task
+                       task,
+                       url
                    }) => {
     const [formData, setFormData] = useState({
         user_id: getCurrentUser().id,
@@ -58,7 +59,7 @@ const TaskModal = ({
                 await updateById('tasks', task.id, formData, 'PATCH');
                 toast.success('Task was updated 🎉');
             } else {
-                const response = await fetch('http://127.0.0.1:8000/api/tasks', {
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${getAuthToken()}`,
@@ -105,7 +106,7 @@ const TaskModal = ({
                                 required
                                 className="mt-1 block w-full rounded border-gray-300 text-gray-800 shadow-sm p-2 focus:ring-2 focus:ring-blue-400"
                                 value={formData.name}
-                                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                onChange={e => setFormData({...formData, name: e.target.value})}
                             />
                         </div>
 
@@ -117,7 +118,7 @@ const TaskModal = ({
                             <select
                                 className="mt-1 block w-full rounded border-gray-300 text-gray-800 shadow-sm p-2 focus:ring-2 focus:ring-blue-400"
                                 value={formData.status}
-                                onChange={e => setFormData({ ...formData, status: e.target.value })}
+                                onChange={e => setFormData({...formData, status: e.target.value})}
                                 required
                             >
                                 {['TO PLAN', 'TO DO', 'IN PROGRESS', 'CANCELLED', 'DONE'].map(o => (
@@ -134,7 +135,7 @@ const TaskModal = ({
                             <select
                                 className="mt-1 block w-full rounded border-gray-300 text-gray-800 shadow-sm p-2 focus:ring-2 focus:ring-blue-400"
                                 value={formData.effort}
-                                onChange={e => setFormData({ ...formData, effort: e.target.value })}
+                                onChange={e => setFormData({...formData, effort: e.target.value})}
                             >
                                 {['EASY', 'MEDIUM', 'HARD'].map(o => (
                                     <option key={o} value={o}>{o}</option>
@@ -150,7 +151,7 @@ const TaskModal = ({
                             <select
                                 className="mt-1 block w-full rounded border-gray-300 text-gray-800 shadow-sm p-2 focus:ring-2 focus:ring-blue-400"
                                 value={formData.priority}
-                                onChange={e => setFormData({ ...formData, priority: e.target.value })}
+                                onChange={e => setFormData({...formData, priority: e.target.value})}
                             >
                                 {['LOW', 'MEDIUM', 'HIGH'].map(o => (
                                     <option key={o} value={o}>{o}</option>
@@ -167,7 +168,7 @@ const TaskModal = ({
                                 type="date"
                                 className="mt-1 block w-full rounded border-gray-300 text-gray-800 shadow-sm p-2 focus:ring-2 focus:ring-blue-400"
                                 value={formData.timeEst}
-                                onChange={e => setFormData({ ...formData, timeEst: e.target.value })}
+                                onChange={e => setFormData({...formData, timeEst: e.target.value})}
                                 min={new Date().toISOString().split('T')[0]}
                             />
                         </div>
@@ -181,7 +182,7 @@ const TaskModal = ({
                                 className="mt-1 block w-full rounded border-gray-300 text-gray-800 shadow-sm p-2 focus:ring-2 focus:ring-blue-400"
                                 rows="3"
                                 value={formData.description}
-                                onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                onChange={e => setFormData({...formData, description: e.target.value})}
                             />
                         </div>
                     </div>

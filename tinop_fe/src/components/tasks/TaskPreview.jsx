@@ -48,7 +48,7 @@ const TaskPreview = ({
         <>
             <div
                 onClick={handleShow}
-                className="bg-white rounded-lg p-4 shadow flex flex-col justify-between relative cursor-pointer hover:shadow-lg transition-shadow w-full max-w-md h-40 mx-auto"
+                className="bg-white rounded-lg p-4 shadow flex flex-col justify-between relative cursor-pointer hover:ring-1 hover:ring-blue-500 transition-shadow w-full max-w-md h-40 mx-auto"
             >
                 <div>
                     <h2 className="font-bold text-black mb-1">{name}</h2>

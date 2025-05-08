@@ -1,12 +1,14 @@
 import React, {useState} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPencilAlt, faTrash, faUser} from '@fortawesome/free-solid-svg-icons';
+import {Link} from "react-router-dom";
 
 const ProjectPreview = ({project, onDelete, onEdit, onInvite}) => {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     return (
-        <div className="bg-white shadow rounded p-4 flex flex-col justify-between relative">
+        <Link to={`/projects/${project.id}`}
+              className="cursor-pointer hover:ring-1 hover:ring-blue-500 transition duration-200 bg-white shadow rounded p-4 flex flex-col justify-between relative">
             <div>
                 <h2 className="font-bold mb-2 text-black">
                     {project.name || 'Project Title'}
@@ -18,15 +20,30 @@ const ProjectPreview = ({project, onDelete, onEdit, onInvite}) => {
             {project.is_owner && (
                 <div className="mt-4 flex justify-end space-x-2">
                     <button
-                        onClick={() => setShowDeleteDialog(true)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowDeleteDialog(true);
+                        }}
                         title="Delete Project"
                     >
                         <FontAwesomeIcon icon={faTrash} className="text-red-500 hover:text-red-700"/>
                     </button>
-                    <button onClick={() => onEdit(project)} title="Edit Project">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(project);
+                        }}
+                        title="Edit Project"
+                    >
                         <FontAwesomeIcon icon={faPencilAlt} className="text-blue-500 hover:text-blue-700"/>
                     </button>
-                    <button onClick={() => onInvite(project)} title="Invite Users">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onInvite(project);
+                        }}
+                        title="Invite Users"
+                    >
                         <FontAwesomeIcon icon={faUser} className="text-green-500 hover:text-green-700"/>
                     </button>
                 </div>
@@ -44,13 +61,17 @@ const ProjectPreview = ({project, onDelete, onEdit, onInvite}) => {
                         </p>
                         <div className="flex justify-end space-x-2">
                             <button
-                                onClick={() => setShowDeleteDialog(false)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowDeleteDialog(false);
+                                }}
                                 className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
                             >
                                 Cancel
                             </button>
                             <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.stopPropagation();
                                     setShowDeleteDialog(false);
                                     onDelete(project.id);
                                 }}
@@ -62,8 +83,9 @@ const ProjectPreview = ({project, onDelete, onEdit, onInvite}) => {
                     </div>
                 </div>
             )}
-        </div>
-    );
+        </Link>
+    )
+        ;
 };
 
 export default ProjectPreview;
