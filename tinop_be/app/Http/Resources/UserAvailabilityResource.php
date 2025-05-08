@@ -10,10 +10,7 @@ class UserAvailabilityResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => $this->whenLoaded('user', [
-                'id' => $this->user->id,
-                'name' => $this->user->name
-            ]),
+            'user' => new UserResource($this->whenLoaded('user')),
             'date' => $this->date,
             'status' => $this->status,
             'notes' => $this->notes

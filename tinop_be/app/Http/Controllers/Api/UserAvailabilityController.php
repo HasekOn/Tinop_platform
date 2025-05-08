@@ -10,7 +10,6 @@ use App\Http\Resources\UserAvailabilityCollection;
 use App\Http\Resources\UserAvailabilityResource;
 use App\Models\User;
 use App\Models\UserAvailability;
-use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -96,63 +95,34 @@ class UserAvailabilityController extends Controller
     {
         try {
             $users = User::all();
-            $period = $request->query('period', 'today');
 
-            if ($period === 'week') {
-                $start = Carbon::now()->startOfWeek();
-                $end = Carbon::now()->endOfWeek();
+            $all = UserAvailability::all()->groupBy('user_id');
 
-                $all = UserAvailability::whereBetween('date', [$start->toDateString(), $end->toDateString()])
-                    ->get()
-                    ->groupBy('user_id');
+            $result = $users->map(function (User $user) use ($all) {
+                $userAvailabilities = $all->get($user->id, collect());
 
-                $result = $users->map(function (User $user) use ($start, $end, $all) {
-                    $days = [];
-
-                    for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-                        $dateStr = $date->toDateString();
-                        $availForUser = $all->get($user->id, collect())
-                            ->firstWhere('date', $dateStr);
-
-                        $days[] = [
-                            'date' => $dateStr,
-                            'id' => $availForUser->id ?? null,
-                            'availability' => $availForUser->status ?? 'office',
-                            'description' => $availForUser->notes ?? '',
-                            'isEditable' => $availForUser !== null,
-                        ];
-                    }
-
+                $days = $userAvailabilities->map(function ($avail) {
                     return [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'week' => $days,
-                    ];
-                });
-            } else {
-                $today = Carbon::today()->toDateString();
-
-                $result = $users->map(function (User $user) use ($today) {
-                    $avail = UserAvailability::where('user_id', $user->id)
-                        ->whereDate('date', $today)
-                        ->first();
-
-                    return [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'availability_id' => $avail->id ?? null,
+                        'date' => $avail->date,
+                        'id' => $avail->id,
                         'availability' => $avail->status ?? 'office',
                         'description' => $avail->notes ?? '',
-                        'isEditable' => $avail !== null,
+                        'isEditable' => $avail->user_id === auth()->id(),
                     ];
-                });
-            }
+                })->sortBy('date')->values();
+
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'week' => $days,
+                ];
+            });
 
             return response()->json([
                 'status' => 'success',
                 'data' => [
                     'users' => $result,
-                    'period' => $period,
+                    'period' => 'all',
                 ],
             ]);
         } catch (\Exception $e) {
@@ -164,4 +134,5 @@ class UserAvailabilityController extends Controller
             ], 500);
         }
     }
+
 }
