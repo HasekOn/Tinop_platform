@@ -1,26 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import {getAuthToken, getCurrentUser} from '../../utils/tokenAuth';
 import {toast} from 'react-toastify';
-import {InitialsAvatar} from "../../utils/InitialsAvatar.jsx";
+import {InitialsAvatar} from '../../utils/InitialsAvatar.jsx';
 import TaskPreview from "../tasks/TaskPreview.jsx";
 import IdeaPreview from "../ideas/IdeaPreview.jsx";
+import ProjectPreview from "../projects/ProjectPreview.jsx";
+import {deleteById} from "../../utils/crudHelper.js";
 
 const ProfilePages = () => {
     const user = getCurrentUser();
-
     const [activeTab, setActiveTab] = useState('tasks');
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [selectedTaskDetail, setSelectedTaskDetail] = useState(null);
 
     const getEndpointForTab = (tab) => {
-        if (tab === 'tasks') {
-            return 'http://127.0.0.1:8000/api/tasks';
-        } else if (tab === 'ideas') {
-            return 'http://127.0.0.1:8000/api/ideas';
-        } else if (tab === 'timesheets') {
-            return 'http://127.0.0.1:8000/api/allAvailability';
-        }
+        if (tab === 'tasks') return 'http://127.0.0.1:8000/api/tasks';
+        if (tab === 'ideas') return 'http://127.0.0.1:8000/api/ideas';
+        if (tab === 'projects') return 'http://127.0.0.1:8000/api/projects';
         return '';
     };
 
@@ -36,9 +34,7 @@ const ProfilePages = () => {
                         'Accept': 'application/json'
                     }
                 });
-                if (!response.ok) {
-                    throw new Error('Error fetching data');
-                }
+                if (!response.ok) throw new Error('Error fetching data');
                 const result = await response.json();
                 if (activeTab === 'ideas') {
                     setData(result.data ? result.data.filter(idea => idea.is_user_owner === true) : []);
@@ -52,9 +48,22 @@ const ProfilePages = () => {
                 setLoading(false);
             }
         };
-
         fetchData();
     }, [activeTab, user.id]);
+
+    const handleDelete = async id => {
+        try {
+            await deleteById('tasks', id);
+            toast.success('Task was deleted 🚀');
+            fetchTasks();
+        } catch (e) {
+            toast.error(`Failed to delete: ${e.message}`);
+        }
+    };
+
+    const handleShowDetail = (detailData) => {
+        setSelectedTaskDetail(detailData);
+    };
 
     return (
         <div className="max-w-5xl mx-auto p-6">
@@ -71,7 +80,6 @@ const ProfilePages = () => {
                     Edit Profile
                 </button>
             </div>
-
             <div className="mb-4 border-b">
                 <ul className="flex space-x-8">
                     <li
@@ -87,10 +95,10 @@ const ProfilePages = () => {
                         Ideas
                     </li>
                     <li
-                        className={`cursor-pointer pb-2 ${activeTab === 'timesheets' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600'}`}
-                        onClick={() => setActiveTab('timesheets')}
+                        className={`cursor-pointer pb-2 ${activeTab === 'projects' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600'}`}
+                        onClick={() => setActiveTab('projects')}
                     >
-                        Timesheets
+                        Projects
                     </li>
                 </ul>
             </div>
@@ -106,8 +114,16 @@ const ProfilePages = () => {
                                 {data.length === 0 ? (
                                     <p>No tasks available.</p>
                                 ) : (
-                                    data.map(task => (
-                                        <TaskPreview key={task.id} task={task}/>
+                                    data.map(t => (
+                                        <TaskPreview
+                                            id={t.id}
+                                            name={t.name}
+                                            status={t.status}
+                                            timeEst={t.timeEst}
+                                            onEdit={() => setModal({open: true, task: t})}
+                                            onDelete={() => handleDelete(t.id)}
+                                            onShow={handleShowDetail}
+                                        />
                                     ))
                                 )}
                             </div>
@@ -118,20 +134,26 @@ const ProfilePages = () => {
                                     <p>No ideas available.</p>
                                 ) : (
                                     data.map(idea => (
-                                        <IdeaPreview key={idea.id} idea={idea}/>
+                                        <IdeaPreview
+                                            id={idea.id}
+                                            name={idea.name}
+                                            description={idea.description}
+                                            likes={idea.likes}
+                                            dislikes={idea.dislikes}
+                                            is_user_owner={idea.is_user_owner}
+                                            reaction={idea.reaction}
+                                        />
                                     ))
                                 )}
                             </div>
                         )}
-                        {activeTab === 'timesheets' && (
+                        {activeTab === 'projects' && (
                             <div>
                                 {data.length === 0 ? (
-                                    <p>No timesheets available.</p>
+                                    <p>No projects available.</p>
                                 ) : (
-                                    data.map(ts => (
-                                        <div key={ts.id} className="border p-4 rounded mb-2">
-                                            <h3 className="font-bold">{ts.date} - {ts.status}</h3>
-                                        </div>
+                                    data.map(project => (
+                                        <ProjectPreview key={project.id} project={project}/>
                                     ))
                                 )}
                             </div>
