@@ -1,14 +1,19 @@
-import React, {useEffect, useState} from 'react';
-import {getAuthToken, getCurrentUser} from '../../utils/tokenAuth.js';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faPencilAlt, faTrash} from '@fortawesome/free-solid-svg-icons';
+import React, { useEffect, useState } from 'react';
+import { getAuthToken, getCurrentUser } from '../../utils/tokenAuth.js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPencilAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
+import EditCommentDialog from "../helpers/EditCommentDialog.jsx";
+import ConfirmationDialog from "../helpers/ConfirmationDialog .jsx";
+import {InitialsAvatar} from "../../utils/InitialsAvatar.jsx";
 
-const TaskDetailDialog = ({task, onClose}) => {
+const TaskDetailDialog = ({ task, onClose }) => {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [loadingComments, setLoadingComments] = useState(false);
     const [postingComment, setPostingComment] = useState(false);
     const [error, setError] = useState(null);
+    const [editingComment, setEditingComment] = useState(null);
+    const [commentToDelete, setCommentToDelete] = useState(null);
 
     const taskData = task.data;
 
@@ -71,8 +76,7 @@ const TaskDetailDialog = ({task, onClose}) => {
         }
     };
 
-    const handleDeleteComment = async (commentId) => {
-        if (!window.confirm("Do you want to delete this comment ?")) return;
+    const deleteComment = async (commentId) => {
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/comments/${commentId}`, {
                 method: 'DELETE',
@@ -90,18 +94,16 @@ const TaskDetailDialog = ({task, onClose}) => {
         }
     };
 
-    const handleEditComment = async (comment) => {
-        const updatedContent = window.prompt("Edit comment:", comment.content);
-        if (updatedContent === null || updatedContent.trim() === "") return;
+    const updateComment = async (commentId, updatedContent) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/comments/${comment.id}`, {
+            const response = await fetch(`http://127.0.0.1:8000/api/comments/${commentId}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${getAuthToken()}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                 },
-                body: JSON.stringify({content: updatedContent}),
+                body: JSON.stringify({ content: updatedContent }),
             });
             if (!response.ok) {
                 throw new Error('Chyba při úpravě komentáře');
@@ -114,20 +116,17 @@ const TaskDetailDialog = ({task, onClose}) => {
     };
 
     return (
-        <div
-            className="fixed inset-0 flex items-center justify-center backdrop-brightness-50 backdrop-blur-lg p-4 z-50">
+        <div className="fixed inset-0 flex items-center justify-center backdrop-brightness-50 backdrop-blur-lg p-4 z-50">
             <div className="bg-white rounded-lg overflow-y-auto max-h-full w-full max-w-3xl p-6 relative">
                 <button onClick={onClose} className="absolute top-4 right-4 text-gray-600 hover:text-gray-800">
                     &#x2715;
                 </button>
 
-                {/* Sekce 1: Název a popis */}
                 <div className="mb-6 border-b pb-4">
                     <h2 className="text-3xl font-bold text-gray-800">{taskData.name}</h2>
                     <p className="mt-2 text-gray-600">{taskData.description}</p>
                 </div>
 
-                {/* Sekce 2: Ostatní údaje */}
                 <div className="mb-6 border-b pb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <span className="font-semibold text-gray-700">Status: </span>
@@ -147,7 +146,6 @@ const TaskDetailDialog = ({task, onClose}) => {
                     </div>
                 </div>
 
-                {/* Sekce 3: Komentáře */}
                 <div>
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Comments</h3>
                     <div className="space-y-4 mb-4">
@@ -159,23 +157,23 @@ const TaskDetailDialog = ({task, onClose}) => {
                                     key={comment.id}
                                     className="p-3 border rounded-lg flex justify-between items-start"
                                 >
-                                    <div>
-                                        <p className="text-gray-700">{comment.content}</p>
-                                        <p className="mt-1 text-xs text-gray-500">
-                                            {comment.user?.name || comment.user_name || "Unknown"} - {new Date(comment.created_at).toLocaleString()}
-                                        </p>
+                                    <div className="flex items-start">
+                                        <InitialsAvatar name={comment.user?.name}/>
+                                        <div className="ml-3 flex flex-col">
+                                            <p className="text-gray-700">{comment.content}</p>
+                                            <p className="mt-1 text-xs text-gray-500">
+                                                {comment.user?.name || "Unknown"} –{" "}
+                                                {new Date(comment.created_at).toLocaleString()}
+                                            </p>
+                                        </div>
                                     </div>
                                     {(comment.user_id === getCurrentUser().id || getCurrentUser().is_admin === 1) && (
                                         <div className="flex flex-col space-y-1 ml-4">
-                                            <button onClick={() => handleEditComment(comment)}
-                                                    title="Edit comment">
-                                                <FontAwesomeIcon icon={faPencilAlt}
-                                                                 className="text-blue-500 hover:text-blue-700"/>
+                                            <button onClick={() => setEditingComment(comment)} title="Edit comment">
+                                                <FontAwesomeIcon icon={faPencilAlt} className="text-blue-500 hover:text-blue-700" />
                                             </button>
-                                            <button onClick={() => handleDeleteComment(comment.id)}
-                                                    title="Delete comment">
-                                                <FontAwesomeIcon icon={faTrash}
-                                                                 className="text-red-500 hover:text-red-700"/>
+                                            <button onClick={() => setCommentToDelete(comment)} title="Delete comment">
+                                                <FontAwesomeIcon icon={faTrash} className="text-red-500 hover:text-red-700" />
                                             </button>
                                         </div>
                                     )}
@@ -188,15 +186,14 @@ const TaskDetailDialog = ({task, onClose}) => {
                         {error && <p className="text-red-500 text-sm">{error}</p>}
                     </div>
 
-                    {/* Formulář pro přidání nového komentáře */}
                     <div className="flex flex-col">
-                        <textarea
-                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                            placeholder="Add comment..."
-                            rows="3"
-                            value={newComment}
-                            onChange={e => setNewComment(e.target.value)}
-                        />
+            <textarea
+                className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
+                placeholder="Add comment..."
+                rows="3"
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+            />
                         <button
                             onClick={handlePostComment}
                             disabled={postingComment}
@@ -207,6 +204,28 @@ const TaskDetailDialog = ({task, onClose}) => {
                     </div>
                 </div>
             </div>
+
+            {editingComment && (
+                <EditCommentDialog
+                    initialComment={editingComment.content}
+                    onConfirm={(updatedContent) => {
+                        updateComment(editingComment.id, updatedContent);
+                        setEditingComment(null);
+                    }}
+                    onCancel={() => setEditingComment(null)}
+                />
+            )}
+
+            {commentToDelete && (
+                <ConfirmationDialog
+                    message="Opravdu chcete smazat tento komentář?"
+                    onConfirm={() => {
+                        deleteComment(commentToDelete.id);
+                        setCommentToDelete(null);
+                    }}
+                    onCancel={() => setCommentToDelete(null)}
+                />
+            )}
         </div>
     );
 };

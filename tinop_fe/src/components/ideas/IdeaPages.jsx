@@ -7,6 +7,7 @@ import {deleteById} from "../../utils/crudHelper.js";
 import IdeaModal from './IdeaModal.jsx';
 import IdeaPreview from './IdeaPreview.jsx';
 import IdeaDetailDialog from './IdeaDetailDialog.jsx';
+import Navigation from "../navigation/Navigation.jsx";
 
 const Ideas = () => {
     const [ideas, setIdeas] = useState([]);
@@ -15,7 +16,7 @@ const Ideas = () => {
     const [modal, setModal] = useState({open: false, idea: null});
     const [selectedIdeaDetail, setSelectedIdeaDetail] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [sortValue, setSortValue] = useState("likesAsc");
+    const [sortValue, setSortValue] = useState("likesDesc");
     const [filterValue, setFilterValue] = useState("all");
 
     const sortOptions = [
@@ -110,7 +111,7 @@ const Ideas = () => {
             <ToastContainer position="bottom-right" autoClose={1500}/>
             <Sidebar/>
             <div className="flex-1 flex flex-col">
-                <Topbar
+                <Navigation
                     currentPage="ideas"
                     onCreate={() => setModal({open: true, idea: null})}
                     onSearch={handleSearch}
@@ -126,7 +127,7 @@ const Ideas = () => {
                     {!loading && filteredIdeas.length === 0 && (
                         <p className="text-center">No ideas found.</p>
                     )}
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {filteredIdeas.map((idea) => (
                             <div key={idea.id}>
                                 <IdeaPreview

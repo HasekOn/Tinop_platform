@@ -58,7 +58,6 @@ const TaskModal = ({
                 await updateById('tasks', task.id, formData, 'PATCH');
                 toast.success('Task was updated 🎉');
             } else {
-                // CREATE
                 const response = await fetch('http://127.0.0.1:8000/api/tasks', {
                     method: 'POST',
                     headers: {

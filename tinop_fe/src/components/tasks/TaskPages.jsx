@@ -5,8 +5,7 @@ import TaskDetailDialog from './TaskDetailDialog.jsx';
 import {toast, ToastContainer} from 'react-toastify';
 import {getAuthToken} from '../../utils/tokenAuth.js';
 import {deleteById} from "../../utils/crudHelper.js";
-import Sidebar from "../navigation/Sidebar.jsx";
-import Topbar from "../navigation/Topbar.jsx";
+import Navigation from "../navigation/Navigation.jsx";
 
 const Tasks = () => {
     const [tasks, setTasks] = useState([]);
@@ -102,20 +101,19 @@ const Tasks = () => {
     return (
         <div className="w-screen h-screen flex">
             <ToastContainer position="bottom-right" autoClose={1500}/>
-            <Sidebar/>
-            <div className="flex-1 flex flex-col">
-                <Topbar
-                    currentPage={'tasks'}
-                    onCreate={() => setModal({open: true, task: null})}
-                    onSearch={handleSearch}
-                    onSort={handleSort}
-                    onFilter={handleFilter}
-                    sortOptions={sortOptions}
-                    filterOptions={filterOptions}
-                    filterName={'Status'}
-                />
 
-                <div className="p-4 grid grid-cols-3 gap-4">
+
+            <div className="flex-1 flex flex-col">
+                <Navigation currentPage={'tasks'}
+                            onCreate={() => setModal({open: true, task: null})}
+                            onSearch={handleSearch}
+                            onSort={handleSort}
+                            onFilter={handleFilter}
+                            sortOptions={sortOptions}
+                            filterOptions={filterOptions}
+                            filterName={'Status'}/>
+
+                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {loading && <p>Loading…</p>}
                     {!loading && filteredTasks.map(t => (
                         <div key={t.id}>

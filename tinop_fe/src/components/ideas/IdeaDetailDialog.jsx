@@ -3,6 +3,8 @@ import {getAuthToken, getCurrentUser} from '../../utils/tokenAuth.js';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPencilAlt, faTrash} from '@fortawesome/free-solid-svg-icons';
 import {InitialsAvatar} from "../../utils/InitialsAvatar.jsx";
+import EditCommentDialog from "../helpers/EditCommentDialog.jsx";
+import ConfirmationDialog from "../helpers/ConfirmationDialog .jsx";
 
 const IdeaDetailDialog = ({idea, onClose}) => {
     const [comments, setComments] = useState([]);
@@ -10,6 +12,8 @@ const IdeaDetailDialog = ({idea, onClose}) => {
     const [loadingComments, setLoadingComments] = useState(false);
     const [postingComment, setPostingComment] = useState(false);
     const [error, setError] = useState(null);
+    const [editingComment, setEditingComment] = useState(null);
+    const [commentToDelete, setCommentToDelete] = useState(null);
 
     const fetchComments = async () => {
         setLoadingComments(true);
@@ -70,8 +74,7 @@ const IdeaDetailDialog = ({idea, onClose}) => {
         }
     };
 
-    const handleDeleteComment = async (commentId) => {
-        if (!window.confirm("Do you want to delete this comment ?")) return;
+    const deleteComment = async (commentId) => {
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/comments/${commentId}`, {
                 method: 'DELETE',
@@ -89,11 +92,9 @@ const IdeaDetailDialog = ({idea, onClose}) => {
         }
     };
 
-    const handleEditComment = async (comment) => {
-        const updatedContent = window.prompt("Edit comment:", comment.content);
-        if (updatedContent === null || updatedContent.trim() === "") return;
+    const updateComment = async (commentId, updatedContent) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/comments/${comment.id}`, {
+            const response = await fetch(`http://127.0.0.1:8000/api/comments/${commentId}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${getAuthToken()}`,
@@ -114,20 +115,17 @@ const IdeaDetailDialog = ({idea, onClose}) => {
 
     return (
         <div
-            className="fixed inset-0 flex items-center justify-center backdrop-brightness-50 backdrop-blur-lg p-4 z-50"
-        >
+            className="fixed inset-0 flex items-center justify-center backdrop-brightness-50 backdrop-blur-lg p-4 z-50">
             <div className="bg-white rounded-lg overflow-y-auto max-h-full w-full max-w-3xl p-6 relative">
                 <button onClick={onClose} className="absolute top-4 right-4 text-gray-600 hover:text-gray-800">
                     &#x2715;
                 </button>
 
-                {/* Sekce 1: Název a popis */}
                 <div className="mb-6 border-b pb-4">
-                    <h2 className="text-3xl font-bold text-gray-800">{idea.name}</h2>
+                    <h2 className="text-3xl font-bold text-gray-800  max-w-xs truncate">{idea.name}</h2>
                     <p className="mt-2 text-gray-600">{idea.description}</p>
                 </div>
 
-                {/* Sekce 2: Ostatní údaje (u nápadů jen informace o likech/dislikech) */}
                 <div className="mb-6 border-b pb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <span className="font-semibold text-gray-700">Likes: </span>
@@ -139,25 +137,21 @@ const IdeaDetailDialog = ({idea, onClose}) => {
                     </div>
                 </div>
 
-                {/* Sekce 3: Komentáře */}
                 <div>
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Comments</h3>
                     <div className="space-y-4 mb-4">
                         {loadingComments ? (
-                            <p>Loading comments...</p>
+                            <p>Načítám komentáře...</p>
                         ) : (
-                            comments?.data?.map(comment => (
+                            comments?.data?.map((comment) => (
                                 <div
                                     key={comment.id}
                                     className="p-3 border rounded-lg flex justify-between items-start"
                                 >
                                     <div className="flex items-start">
                                         <InitialsAvatar name={comment.user?.name}/>
-
                                         <div className="ml-3 flex flex-col">
-                                            <p className="text-gray-700">
-                                                {comment.content}
-                                            </p>
+                                            <p className="text-gray-700">{comment.content}</p>
                                             <p className="mt-1 text-xs text-gray-500">
                                                 {comment.user?.name || "Unknown"} –{" "}
                                                 {new Date(comment.created_at).toLocaleString()}
@@ -166,12 +160,11 @@ const IdeaDetailDialog = ({idea, onClose}) => {
                                     </div>
                                     {(comment.user_id === getCurrentUser().id || getCurrentUser().is_admin === 1) && (
                                         <div className="flex flex-col space-y-1 ml-4">
-                                            <button onClick={() => handleEditComment(comment)} title="Edit comment">
+                                            <button onClick={() => setEditingComment(comment)} title="Upravit komentář">
                                                 <FontAwesomeIcon icon={faPencilAlt}
                                                                  className="text-blue-500 hover:text-blue-700"/>
                                             </button>
-                                            <button onClick={() => handleDeleteComment(comment.id)}
-                                                    title="Delete comment">
+                                            <button onClick={() => setCommentToDelete(comment)} title="Smazat komentář">
                                                 <FontAwesomeIcon icon={faTrash}
                                                                  className="text-red-500 hover:text-red-700"/>
                                             </button>
@@ -186,11 +179,10 @@ const IdeaDetailDialog = ({idea, onClose}) => {
                         {error && <p className="text-red-500 text-sm">{error}</p>}
                     </div>
 
-                    {/* Formulář pro přidání nového komentáře */}
                     <div className="flex flex-col">
             <textarea
                 className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                placeholder="Add comment..."
+                placeholder="Přidat komentář..."
                 rows="3"
                 value={newComment}
                 onChange={e => setNewComment(e.target.value)}
@@ -200,11 +192,33 @@ const IdeaDetailDialog = ({idea, onClose}) => {
                             disabled={postingComment}
                             className="mt-2 self-end px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                         >
-                            {postingComment ? 'Sending...' : 'Send'}
+                            {postingComment ? 'Odesílám...' : 'Odeslat'}
                         </button>
                     </div>
                 </div>
             </div>
+
+            {editingComment && (
+                <EditCommentDialog
+                    initialComment={editingComment.content}
+                    onConfirm={(updatedContent) => {
+                        updateComment(editingComment.id, updatedContent);
+                        setEditingComment(null);
+                    }}
+                    onCancel={() => setEditingComment(null)}
+                />
+            )}
+
+            {commentToDelete && (
+                <ConfirmationDialog
+                    message="Opravdu chcete smazat tento komentář?"
+                    onConfirm={() => {
+                        deleteComment(commentToDelete.id);
+                        setCommentToDelete(null);
+                    }}
+                    onCancel={() => setCommentToDelete(null)}
+                />
+            )}
         </div>
     );
 };

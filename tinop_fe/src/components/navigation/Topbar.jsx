@@ -12,7 +12,8 @@ const Topbar = ({
                     sortOptions = [],
                     filterOptions = [],
                     filterName = null,
-                    onCreate = null
+                    onCreate = null,
+    setIsSidebarOpen
                 }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -77,8 +78,14 @@ const Topbar = ({
     };
 
     return (
-        <div className="flex justify-between items-center bg-white p-4 shadow relative">
+        <div className="flex justify-between items-center bg-white p-4 shadow relative w-full">
             <div className="flex items-center space-x-3 w-full max-w-md">
+                <button
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="bg-blue-500 text-white px-3 py-2 rounded mr-4 hover:bg-blue-600 transition"
+                >
+                    ☰
+                </button>
                 <input
                     type="text"
                     placeholder={`Search for a ${currentPage || 'item'}`}

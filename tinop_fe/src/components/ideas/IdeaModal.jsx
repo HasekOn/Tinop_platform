@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {getAuthToken, getCurrentUser} from "../../utils/tokenAuth.js";
-import {toast} from 'react-toastify';
-import {updateById} from '../../utils/crudHelper.js';
+import React, { useEffect, useState } from 'react';
+import { getAuthToken, getCurrentUser } from "../../utils/tokenAuth.js";
+import { toast } from 'react-toastify';
+import { updateById } from '../../utils/crudHelper.js';
 
-const IdeaModal = ({isOpen, onClose, onIdeaSaved, idea}) => {
+const IdeaModal = ({ isOpen, onClose, onIdeaSaved, idea }) => {
     const [formData, setFormData] = useState({
         user_id: getCurrentUser().id,
         name: '',
@@ -74,7 +74,7 @@ const IdeaModal = ({isOpen, onClose, onIdeaSaved, idea}) => {
 
     return (
         <div className="fixed inset-0 backdrop-brightness-50 backdrop-blur-lg flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md relative shadow-xl min-h-[70vh] flex flex-col">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md relative shadow-xl max-h-[90vh] overflow-y-auto flex flex-col">
                 <h2 className="text-2xl font-bold mb-6 text-gray-800">
                     {idea && idea.id ? 'Update Idea' : 'Create new Idea'}
                 </h2>
@@ -90,7 +90,7 @@ const IdeaModal = ({isOpen, onClose, onIdeaSaved, idea}) => {
                                 required
                                 className="mt-1 block w-full rounded border-gray-300 text-gray-800 shadow-sm p-2 focus:ring-2 focus:ring-blue-400"
                                 value={formData.name}
-                                onChange={e => setFormData({...formData, name: e.target.value})}
+                                onChange={e => setFormData({ ...formData, name: e.target.value })}
                             />
                         </div>
 
@@ -103,7 +103,7 @@ const IdeaModal = ({isOpen, onClose, onIdeaSaved, idea}) => {
                                 className="mt-1 block w-full rounded border-gray-300 text-gray-800 shadow-sm p-2 focus:ring-2 focus:ring-blue-400"
                                 rows="3"
                                 value={formData.description}
-                                onChange={e => setFormData({...formData, description: e.target.value})}
+                                onChange={e => setFormData({ ...formData, description: e.target.value })}
                             />
                         </div>
                     </div>
