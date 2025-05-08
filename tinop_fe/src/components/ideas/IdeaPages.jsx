@@ -140,6 +140,7 @@ const Ideas = () => {
                                     onDelete={() => handleDelete(idea.id)}
                                     onShow={() => handleShowDetail(idea)}
                                     is_user_owner={idea.is_user_owner}
+                                    reaction={idea.reaction}
                                 />
                             </div>
                         ))}

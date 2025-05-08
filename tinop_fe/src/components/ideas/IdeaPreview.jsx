@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { getCurrentUser } from '../../utils/tokenAuth.js';
+import React, {useState} from 'react';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faPencilAlt, faThumbsDown, faThumbsUp, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {getAuthToken, getCurrentUser} from '../../utils/tokenAuth.js';
 import ConfirmationDialog from "../helpers/ConfirmationDialog .jsx";
 
-const IdeaPreview = ({ id, name, description, likes, dislikes, onEdit, onDelete, onShow, is_user_owner }) => {
+const IdeaPreview = ({id, name, description, likes, dislikes, reaction, onEdit, onDelete, onShow, is_user_owner}) => {
     const currentUser = getCurrentUser();
     const canEdit = currentUser && (is_user_owner === true || currentUser.is_admin === 1);
     const [showDialog, setShowDialog] = useState(false);
+    const [currentReaction, setCurrentReaction] = useState(reaction);
+    const [likeCount, setLikeCount] = useState(likes);
+    const [dislikeCount, setDislikeCount] = useState(dislikes);
 
     const handleDelete = (e) => {
         e.stopPropagation();
@@ -28,6 +31,36 @@ const IdeaPreview = ({ id, name, description, likes, dislikes, onEdit, onDelete,
         onEdit?.();
     };
 
+    const handleReact = async (type) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/ideas/${id}/react`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({reaction: type})
+            });
+
+            if (!response.ok) {
+                throw new Error("Error reacting to idea");
+            }
+
+            setCurrentReaction(type);
+
+            if (type === 'like') {
+                setLikeCount(prev => prev + (currentReaction === 'like' ? -1 : 1));
+                if (currentReaction === 'dislike') setDislikeCount(prev => prev - 1);
+            } else if (type === 'dislike') {
+                setDislikeCount(prev => prev + (currentReaction === 'dislike' ? -1 : 1));
+                if (currentReaction === 'like') setLikeCount(prev => prev - 1);
+            }
+        } catch (err) {
+            console.error("Error:", err);
+        }
+    };
+
     return (
         <>
             <div
@@ -38,11 +71,11 @@ const IdeaPreview = ({ id, name, description, likes, dislikes, onEdit, onDelete,
                     <h3 className="text-xl font-bold text-gray-800 max-w-xs truncate">{name}</h3>
                     {canEdit && (
                         <div className="flex space-x-3">
-                            <button onClick={handleEdit} title="Upravit nápad">
-                                <FontAwesomeIcon icon={faPencilAlt} className="text-blue-500 hover:text-blue-700" />
+                            <button onClick={handleEdit} title="Edit idea">
+                                <FontAwesomeIcon icon={faPencilAlt} className="text-blue-500 hover:text-blue-700"/>
                             </button>
-                            <button onClick={handleDelete} title="Smazat nápad">
-                                <FontAwesomeIcon icon={faTrash} className="text-red-500 hover:text-red-700" />
+                            <button onClick={handleDelete} title="Delete idea">
+                                <FontAwesomeIcon icon={faTrash} className="text-red-500 hover:text-red-700"/>
                             </button>
                         </div>
                     )}
@@ -51,20 +84,32 @@ const IdeaPreview = ({ id, name, description, likes, dislikes, onEdit, onDelete,
                     <p className="mt-2 text-gray-600 line-clamp-2">{description}</p>
                 )}
                 <div className="mt-4 flex space-x-4">
-                    <div className="flex items-center">
-                        <span className="mr-1">👍</span>
-                        <span>{likes}</span>
-                    </div>
-                    <div className="flex items-center">
-                        <span className="mr-1">👎</span>
-                        <span>{dislikes}</span>
-                    </div>
+                    <button
+                        className={`flex items-center px-3 py-1 rounded ${currentReaction === 'like' ? 'bg-blue-500 text-white' : 'bg-gray-200 hover:bg-gray-400 text-gray-800'}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleReact('like');
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faThumbsUp} className="mr-1"/>
+                        <span>{likeCount}</span>
+                    </button>
+                    <button
+                        className={`flex items-center px-3 py-1 rounded ${currentReaction === 'dislike' ? 'bg-red-500 text-white' : 'bg-gray-200 hover:bg-gray-400 text-gray-800'}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleReact('dislike');
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faThumbsDown} className="mr-1"/>
+                        <span>{dislikeCount}</span>
+                    </button>
                 </div>
             </div>
 
             {showDialog && (
                 <ConfirmationDialog
-                    message="Opravdu chcete smazat tento nápad?"
+                    message="Do you really want to delete this idea?"
                     onConfirm={confirmDelete}
                     onCancel={cancelDelete}
                 />

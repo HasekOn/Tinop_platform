@@ -141,7 +141,7 @@ const IdeaDetailDialog = ({idea, onClose}) => {
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Comments</h3>
                     <div className="space-y-4 mb-4">
                         {loadingComments ? (
-                            <p>Načítám komentáře...</p>
+                            <p>Loading comments...</p>
                         ) : (
                             comments?.data?.map((comment) => (
                                 <div
@@ -160,11 +160,11 @@ const IdeaDetailDialog = ({idea, onClose}) => {
                                     </div>
                                     {(comment.user_id === getCurrentUser().id || getCurrentUser().is_admin === 1) && (
                                         <div className="flex flex-col space-y-1 ml-4">
-                                            <button onClick={() => setEditingComment(comment)} title="Upravit komentář">
+                                            <button onClick={() => setEditingComment(comment)} title="Update comment">
                                                 <FontAwesomeIcon icon={faPencilAlt}
                                                                  className="text-blue-500 hover:text-blue-700"/>
                                             </button>
-                                            <button onClick={() => setCommentToDelete(comment)} title="Smazat komentář">
+                                            <button onClick={() => setCommentToDelete(comment)} title="Delete comment">
                                                 <FontAwesomeIcon icon={faTrash}
                                                                  className="text-red-500 hover:text-red-700"/>
                                             </button>
@@ -182,7 +182,7 @@ const IdeaDetailDialog = ({idea, onClose}) => {
                     <div className="flex flex-col">
             <textarea
                 className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                placeholder="Přidat komentář..."
+                placeholder="Add comments..."
                 rows="3"
                 value={newComment}
                 onChange={e => setNewComment(e.target.value)}
@@ -192,7 +192,7 @@ const IdeaDetailDialog = ({idea, onClose}) => {
                             disabled={postingComment}
                             className="mt-2 self-end px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                         >
-                            {postingComment ? 'Odesílám...' : 'Odeslat'}
+                            {postingComment ? 'Sending...' : 'Sending'}
                         </button>
                     </div>
                 </div>
@@ -211,7 +211,7 @@ const IdeaDetailDialog = ({idea, onClose}) => {
 
             {commentToDelete && (
                 <ConfirmationDialog
-                    message="Opravdu chcete smazat tento komentář?"
+                    message="Do you really want to delete this comment?"
                     onConfirm={() => {
                         deleteComment(commentToDelete.id);
                         setCommentToDelete(null);
