@@ -12,8 +12,8 @@ const TimeSheetPages = () => {
     const [refreshCounter, setRefreshCounter] = useState(0);
 
     const sortOptions = [
-        {value: "timeAsc", label: "Time Estimate Ascending"},
-        {value: "timeDesc", label: "Time Estimate Descending"},
+        {value: "timeAsc", label: "Name Ascending"},
+        {value: "timeDesc", label: "Name Descending"},
     ];
 
     const filterOptions = [

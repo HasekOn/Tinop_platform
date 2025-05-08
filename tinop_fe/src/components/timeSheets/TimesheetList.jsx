@@ -170,6 +170,7 @@ const TimesheetList = ({filter, searchTerm, sortValue, onEdit}) => {
 
     if (filter === 'today') {
         const dayIso = currentDate.toISOString().split('T')[0];
+
         return (
             <div className="p-4">
                 {renderNavigationBar()}
@@ -184,30 +185,36 @@ const TimesheetList = ({filter, searchTerm, sortValue, onEdit}) => {
                         </tr>
                         </thead>
                         <tbody>
-                        {sortedUsers.map(user => (
-                            <tr key={user.id} className="hover:bg-gray-50">
-                                <td className="py-2 px-4 border-b">{user.name}</td>
-                                <td className="py-2 px-4 border-b">
-                                    <AvailabilityWithTooltip
-                                        availability={user.availability || "office"}
-                                        note={user.description}
-                                    />
-                                    {user.isEditable && (
-                                        <button
-                                            onClick={() => onEdit(user)}
-                                            className="focus:outline-none ml-1"
-                                            title="Edit"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-500"
-                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                      d="M11 5h6m2 2v6M5 13v6h6l7-7-6-6-7 7z"/>
-                                            </svg>
-                                        </button>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
+                        {sortedUsers.map(user => {
+                            const record = user.week
+                                ? user.week.find(day => day.date === dayIso)
+                                : null;
+
+                            return (
+                                <tr key={user.id} className="hover:bg-gray-50">
+                                    <td className="py-2 px-4 border-b">{user.name}</td>
+                                    <td className="py-2 px-4 border-b">
+                                        <AvailabilityWithTooltip
+                                            availability={record ? record.availability : (user.availability || "office")}
+                                            note={record ? record.description  : user.description}
+                                        />
+                                        {(record?.isEditable || (!record && user.isEditable)) && (
+                                            <button
+                                                onClick={() => onEdit(record || user)}
+                                                className="focus:outline-none ml-1"
+                                                title="Edit"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-500"
+                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                          d="M11 5h6m2 2v6M5 13v6h6l7-7-6-6-7 7z"/>
+                                                </svg>
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                         </tbody>
                     </table>
                 </div>

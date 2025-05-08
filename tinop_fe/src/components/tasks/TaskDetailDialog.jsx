@@ -218,7 +218,7 @@ const TaskDetailDialog = ({ task, onClose }) => {
 
             {commentToDelete && (
                 <ConfirmationDialog
-                    message="Opravdu chcete smazat tento komentář?"
+                    message="Do you really want to delete this comment?"
                     onConfirm={() => {
                         deleteComment(commentToDelete.id);
                         setCommentToDelete(null);
