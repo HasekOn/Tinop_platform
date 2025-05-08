@@ -14,6 +14,8 @@ class IdeaResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $this->loadMissing(['reactors' => fn($q) => $q->where('user_id', auth()->id())]);
+
         /** @var \App\Models\User|null $me */
         $me = $request->user();
 
@@ -26,6 +28,11 @@ class IdeaResource extends JsonResource
             'dislikes' => $this->dislikes,
             'description' => $this->description,
             'is_user_owner' => $isOwner,
+            'reaction' => $this->whenLoaded('reactors', function () {
+                return $this->reactors->isNotEmpty()
+                    ? $this->reactors->first()->pivot->reaction
+                    : null;
+            }),
         ];
     }
 }

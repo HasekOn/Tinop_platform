@@ -27,7 +27,9 @@ class IdeaController extends Controller
     public function index(Request $request): IdeaCollection
     {
         $filter = new IdeaFilter();
-        $query = Idea::query()->with(['user', 'comments']);
+        $query = Idea::query()
+            ->with(['user', 'comments'])
+            ->with(['reactors' => fn($q) => $q->where('user_id', auth()->id())]);
         $queryItems = $filter->transform($request);
 
         if (count($queryItems) == 0) {
@@ -43,7 +45,11 @@ class IdeaController extends Controller
      */
     public function show(Idea $idea): IdeaResource
     {
-        return new IdeaResource($idea->load(['user', 'comments']));
+        return new IdeaResource($idea->load([
+            'user',
+            'comments',
+            'reactors' => fn($q) => $q->where('user_id', auth()->id()),
+        ]));
     }
 
     /**
@@ -91,12 +97,9 @@ class IdeaController extends Controller
      * @param Request $request
      * @param Idea $idea
      * @return JsonResponse
-     * @throws AuthorizationException
      */
     public function react(Request $request, Idea $idea): JsonResponse
     {
-        $this->authorize('view', $idea);
-
         $data = $request->validate([
             'reaction' => ['required', Rule::in(['like', 'dislike'])],
         ]);
