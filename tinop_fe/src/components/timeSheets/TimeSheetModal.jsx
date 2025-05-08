@@ -10,10 +10,11 @@ const TimeSheetModal = ({ isOpen, timeSheet, onClose, onTimeSheetSaved }) => {
 
     useEffect(() => {
         if (isOpen) {
+            console.log(timeSheet);
             if (timeSheet && timeSheet.id) {
                 setDate(timeSheet.date || '');
-                setAvailability(timeSheet.status || 'office');
-                setDescription(timeSheet.notes || '');
+                setAvailability(timeSheet.availability || 'office');
+                setDescription(timeSheet.description || '');
             } else {
                 setDate('');
                 setAvailability('office');

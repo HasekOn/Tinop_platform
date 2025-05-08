@@ -99,9 +99,8 @@ const Tasks = () => {
     }
 
     return (
-        <div className="w-screen h-screen flex">
+        <div className="w-screen h-screen flex bg-gray-100">
             <ToastContainer position="bottom-right" autoClose={1500}/>
-
 
             <div className="flex-1 flex flex-col">
                 <Navigation currentPage={'tasks'}
